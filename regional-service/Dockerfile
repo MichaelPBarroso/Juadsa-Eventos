@@ -1,0 +1,32 @@
+# Etapa 1: Build da aplicação com Maven
+FROM maven:3.9-eclipse-temurin-21 AS builder
+WORKDIR /app
+
+# Copia apenas POMs para aproveitar cache
+COPY pom.xml ./pom.xml
+COPY regional-service/pom.xml ./regional-service/pom.xml
+
+# Baixa dependências do módulo específico
+RUN mvn -B -f regional-service/pom.xml -DskipTests dependency:go-offline
+
+# Copia o restante do código do módulo
+COPY regional-service ./regional-service
+
+# Build do módulo e empacotamento do jar executável
+RUN mvn -B -f regional-service/pom.xml -DskipTests clean package spring-boot:repackage
+
+# Etapa 2: Runtime enxuto
+FROM eclipse-temurin:21-jre-alpine
+
+# Cria usuário não-root
+RUN addgroup -S juadsa && adduser -S juadsa -G juadsa
+
+WORKDIR /app
+COPY --from=builder /app/regional-service/target/*jar app.jar
+
+# Ajusta permissões
+RUN chown -R juadsa:juadsa /app
+USER juadsa
+
+EXPOSE 8080
+ENTRYPOINT ["java","-jar","app.jar"]

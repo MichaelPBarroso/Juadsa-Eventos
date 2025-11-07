@@ -1,0 +1,156 @@
+openapi: 3.0.3
+info:
+  title: Gestão de eventos Juadsa
+  version: 1.0.0
+  description: Projeto para gerenciamento e disponibilização das informações do App Juadsa
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: http://localhost:8080/
+    description: Local server
+paths:
+  /regional/{sigla}:
+    get:
+      tags:
+        - Regional
+      summary: Buscar regional pela sigla
+      description: Retorna os dados da regional a partir da sigla
+      operationId: getRegionalBySigla
+      parameters:
+        - name: sigla
+          in: path
+          description: Sigla da regional
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Regional encontrado com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Regional"
+  /regional:
+    get:
+      tags:
+        - Regional
+      summary: Busca as regionais
+      description: Busca uma lista de todas as regionais
+      operationId: getRegionais
+      responses:
+        "200":
+          description: Lista de regionais cadastradas.
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/Regional"
+    post:
+      tags:
+        - Regional
+      summary: Cadastrar regional
+      description: Cadastra uma regional
+      operationId: createRegional
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NovaRegional"
+      responses:
+        "200":
+          description: Regional Cadastrada com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Regional"
+  /regional/{id}:
+    delete:
+      tags:
+        - Regional
+      summary: Remover Regional
+      description: Remover uma regional
+      operationId: removeRegional
+      parameters:
+        - name: id
+          in: path
+          description: Id da Regional
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Regional removida com sucesso.
+    put:
+      tags:
+        - Regional
+      summary: Atualizar Regional
+      description: Atualizar uma regional
+      operationId: updateRegional
+      parameters:
+        - name: id
+          in: path
+          description: Id da Regional
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Regional"
+      responses:
+        "200":
+          description: Regional atualizada com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Regional"
+components:
+  schemas:
+    Exception:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Codigo da exceção
+        message:
+          type: string
+          description: Mensagem da exceção
+
+    Regional:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Id da regional
+        nome:
+          type: string
+          description: Nome da regional
+        sigla:
+          type: string
+          description: Sigla da regional
+        descricao:
+          type: string
+          description: Descrição da regional
+        ordem:
+          type: integer
+          description: Em qual posição o item vai ser apresentado na lista de regionais
+
+    NovaRegional:
+      type: object
+      properties:
+        nome:
+          type: string
+          description: Nome da regional
+        sigla:
+          type: string
+          description: Sigla da regional
+        descricao:
+          type: string
+          description: Descrição da regional
+        ordem:
+          type: integer
+          description: Em qual posição o item vai ser apresentado na lista de regionais

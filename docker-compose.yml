@@ -1,0 +1,39 @@
+services:
+  juadsa-db-postgres:
+    image: postgres:16
+    container_name: juadsa_db_postgres
+    environment:
+      POSTGRES_DB: juadsa
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: batata@
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d juadsa"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks: [juadsa-net]
+
+  regional-service:
+    build:
+      context: .
+      dockerfile: regional-service/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://juadsa-db-postgres:5432/juadsa
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: batata@
+    depends_on:
+      juadsa-db-postgres:
+        condition: service_healthy
+    networks: [juadsa-net]
+
+volumes:
+  pgdata:
+
+networks:
+  juadsa-net:
